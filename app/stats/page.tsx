@@ -3,7 +3,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 export default async function Home() {
-  const systemInfo = await getSystemDetails();
+  let systemInfo;
+  let error = false;
+
+  try {
+    systemInfo = await getSystemDetails();
+  } catch (err) {
+    console.error("Failed to load system details:", err);
+    error = true;
+  }
+
+  if (error || !systemInfo) {
+    return (
+      <main className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <h1 className="text-3xl font-bold mb-6 text-foreground">Raspberry Pi</h1>
+        <Card className="w-full max-w-md border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive">Error Loading System Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Unable to retrieve system information. This might happen if:
+            </p>
+            <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
+              <li>The app is not running on a Raspberry Pi</li>
+              <li>Required system commands are not available</li>
+              <li>Insufficient permissions to access system information</li>
+            </ul>
+            <p className="text-sm text-muted-foreground mt-4">
+              Please refresh the page to try again.
+            </p>
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
@@ -19,7 +53,7 @@ export default async function Home() {
               ["Hostname", systemInfo.os.hostname()],
               ["Platform", systemInfo.os.platform()],
               ["Architecture", systemInfo.os.arch()],
-              ["CPU Temperature", `${systemInfo.cpuTemp.toFixed(1)}°C`],
+              ["CPU Temperature", systemInfo.cpuTemp > 0 ? `${systemInfo.cpuTemp.toFixed(1)}°C` : "N/A"],
             ].map(([label, value]) => (
               <div key={label} className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{label}:</span>
@@ -47,9 +81,9 @@ export default async function Home() {
               <span>Used</span>
               <span>{systemInfo.memoryUsage.used.toFixed(2)} / {systemInfo.memoryUsage.total.toFixed(2)} GB</span>
             </div>
-            <Progress 
-              value={(systemInfo.memoryUsage.used / systemInfo.memoryUsage.total) * 100} 
-              className="h-2" 
+            <Progress
+              value={(systemInfo.memoryUsage.used / systemInfo.memoryUsage.total) * 100}
+              className="h-2"
             />
           </div>
         </CardContent>
