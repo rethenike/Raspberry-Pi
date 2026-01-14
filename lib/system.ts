@@ -4,7 +4,8 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
-const GB = 1024 ** 3;
+
+const GB = 1024 ** 3; // Bytes in a gigabyte
 
 function getCpuUsage() {
   const cpus = os.cpus();
@@ -18,7 +19,6 @@ function getCpuUsage() {
 async function getCpuTemp(): Promise<number> {
   try {
     const { stdout } = await execAsync("vcgencmd measure_temp");
-    // in celsius! OBVIOUSLY!
     const temp = parseFloat(stdout.replace("temp=", "").replace("'C", ""));
     return isNaN(temp) ? 0 : temp;
   } catch (error) {
@@ -33,11 +33,14 @@ function bytesToGB(bytes: number) {
 
 export async function getSystemDetails() {
   try {
+
     const cpuUsage = getCpuUsage();
+
 
     const totalMem = os.totalmem();
     const freeMem = os.freemem();
     const usedMem = totalMem - freeMem;
+
 
     const cpuTemp = await getCpuTemp();
 
