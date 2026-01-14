@@ -4,8 +4,7 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
-// Constants
-const GB = 1024 ** 3; // Bytes in a gigabyte
+const GB = 1024 ** 3;
 
 function getCpuUsage() {
   const cpus = os.cpus();
@@ -24,7 +23,6 @@ async function getCpuTemp(): Promise<number> {
     return isNaN(temp) ? 0 : temp;
   } catch (error) {
     console.error("Failed to get CPU temperature:", error);
-    // Return 0 if command fails (e.g., not running on Raspberry Pi)
     return 0;
   }
 }
@@ -35,15 +33,12 @@ function bytesToGB(bytes: number) {
 
 export async function getSystemDetails() {
   try {
-    // Get CPU usage
     const cpuUsage = getCpuUsage();
 
-    // Get memory info
     const totalMem = os.totalmem();
     const freeMem = os.freemem();
     const usedMem = totalMem - freeMem;
 
-    // Get CPU temperature (with error handling built in)
     const cpuTemp = await getCpuTemp();
 
     return {
